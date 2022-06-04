@@ -1,4 +1,4 @@
-# creating the initial database from the excel-file here
+# creating the initial database from the excel-file here (first step)
 
 import pandas as pd
 import sqlite3 as sq

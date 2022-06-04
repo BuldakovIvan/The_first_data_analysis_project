@@ -1,6 +1,7 @@
-# creating new employee data based on initial data
+# creating new employee data based on initial data  (third step)
 
 import sqlite3 as sq
+import pandas as pd
 
 
 data_base_name = 'Employee_Data.db'
@@ -65,6 +66,7 @@ with sq.connect(data_base_name) as con:
 
     for_change = cur.fetchall()
 
+    # add the letter "a" to the male surname at the end to turn it into a female one
     for ind, val in enumerate(for_change):
         if ind % 5 != 0:
             tmp = val[1].split()
@@ -75,3 +77,6 @@ with sq.connect(data_base_name) as con:
                             where "Personnel number" = {val[0]}
                             ''')
 
+    # creating an excel file with new employee data
+    new_data = pd.read_sql(f'''select * from "{table_two}"''', con)
+    new_data.to_excel('New_Employees_Data.xlsx', sheet_name='Данные', index=False)

@@ -1,4 +1,4 @@
-# a table with personal data of employees is created here
+# a table with personal data of employees is created here  (second step)
 
 import sqlite3 as sq
 import random as rd

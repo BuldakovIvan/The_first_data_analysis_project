@@ -11,6 +11,7 @@ table_three = "personal_data"
 with sq.connect(data_base_name) as con:
     cur = con.cursor()
 
+    # making a selection from the database to create a table 'Cтруктура работников цеха по половому признаку'
     gender_structure = pd.read_sql(f'''SELECT Sex, count(Sex) as Amount FROM
                             (
                             SELECT "Personnel number", Sex
@@ -19,9 +20,13 @@ with sq.connect(data_base_name) as con:
                             )
                         GROUP by Sex''', con)
 
+    # data on the number of men and women for the pie chart:
     vals = gender_structure['Amount'].tolist()
+
+    # data for pie chart legend:
     labels = ['Женщины' if s == 'Ж' else 'Мужчины' for s in gender_structure['Sex'].tolist()]
 
+    # pie chart settings:
     my = plt.pie(vals,
                  colors=('violet', 'dodgerblue'),
                  startangle=-45,
