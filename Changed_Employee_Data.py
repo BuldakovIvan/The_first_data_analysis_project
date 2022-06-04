@@ -77,6 +77,6 @@ with sq.connect(data_base_name) as con:
                             where "Personnel number" = {val[0]}
                             ''')
 
-    # creating an excel file with new employee data
+    # creating an excel-file with new employees data
     new_data = pd.read_sql(f'''select * from "{table_two}"''', con)
     new_data.to_excel('New_Employees_Data.xlsx', sheet_name='Данные', index=False)
