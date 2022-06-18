@@ -16,7 +16,10 @@ column_name = data.columns
 
 
 # changing the format of the data in the cells for correct entry into the database:
-data = data.astype({'Месяц': 'str', 'Доход': 'int'})
+data = data.astype({'Месяц': 'str', 'Доход': 'float'})
+
+# rounding income according to the rules of mathematics:
+data['Доход'] = data['Доход'].apply(lambda inc: int(inc) + 1 if inc % 1 * 10 >= 5 else int(inc))
 
 
 # create database with initial data of employee:

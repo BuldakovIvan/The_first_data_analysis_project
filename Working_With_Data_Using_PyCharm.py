@@ -1,5 +1,6 @@
 import sqlite3 as sq
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec as gs
 from matplotlib.ticker import MultipleLocator
@@ -42,7 +43,7 @@ with sq.connect(data_base_name) as con:
 
     print(gender_structure)
 
-    plt.show()
+    # plt.show()
 
 # creating an age chart
 with sq.connect('Employee_Data.db') as con:
@@ -177,4 +178,73 @@ with sq.connect('Employee_Data.db') as con:
     plt.figtext(0.01, 0.87, f'{axe_label}', weight='bold', size=9)  # name of Y-axis
 
     print(age_df)
+    # plt.show()
+
+
+with sq.connect("Employee_Data.db") as con:
+
+    # create labels for axes:
+    pv = 'Объем производства, ед.'
+    inc = 'Зарплатный фонд, руб.'
+    m = 'Расчетный месяц'
+
+    # create a new DataFrame from DataBase:
+    vol_sal = pd.read_sql(f'''SELECT Month as "{m}", avg("Production volume") as "{pv}",
+                              (sum(Income) / 10 * 10) as "{inc}"
+                              from "{table_two}"
+                              GROUP by "{m}"
+                              order by "{m}"''', con)
+
+    # convert the numeric designation of the date into a letter in Russian:
+    ind = pd.DatetimeIndex(vol_sal[f'{m}']).month_name(locale='Russian')
+
+    # convert the volume value from float into integer:
+    vol_sal[f'{pv}'] = vol_sal[f'{pv}'].astype(int)
+
+    # create a final DataFrame:
+    vol_sal = vol_sal.loc[:, [f'{pv}', f'{inc}']].set_index(ind)
+
+    # prepare data for bar-plot chart:
+    x_values1 = vol_sal.index  # ticks' designation for x-axis
+    y_values1 = vol_sal[f'{pv}']  # ticks' designation for y1-axis
+    y_values2 = vol_sal[f'{inc}']  # ticks' designation for y2-axis
+
+    # create a bar-plot chart:
+    fig = plt.figure(figsize=(9, 6))
+
+    # assign a chart location on the figure object:
+    plt.subplots_adjust(left=0.1, right=0.9, top=0.85, bottom=0.2)
+
+    # create the first axis:
+    ax1 = fig.add_subplot(111)
+
+    # take a few steps to create 'Grouped bar chart with labels':
+    rects = ax1.bar(x_values1, y_values1, color="lightskyblue", width=0.7, edgecolor='steelblue', label=f'{pv}')
+    ax1.bar_label(rects, padding=3, size=8)  # matplotlib tutorial: Grouped bar chart with labels
+
+    ax1.set_xlabel(f"{m}", color="black", size=10, fontweight='book')
+    ax1.set_ylabel(f"{pv}", color="black", size=10, fontweight='book')
+    ax1.set_yticks(np.linspace(ax1.get_ybound()[0], ax1.get_ybound()[1], 15))
+    ax1.tick_params(axis='x', colors="black", labelsize=9, rotation=45)
+    ax1.tick_params(axis='y', colors="black", labelsize=8)
+    ax1.spines['top'].set_visible(False)
+    plt.legend(bbox_to_anchor=(0.3, 0.98), fontsize=8, frameon=False)
+
+    # create the second axis:
+    ax2 = ax1.twinx()
+    ax2.plot(x_values1, y_values2, color="orangered", marker='o', label=f'{inc}')
+    ax2.set_ylabel(f"{inc}", color="black", size=10, fontweight='book')
+    ax2.set_yticks(np.linspace(39 * 1e5, 53 * 1e5, 15))
+    ax2.tick_params(axis='y', colors="black", labelsize=8)
+    ax2.spines['top'].set_visible(False)
+    plt.legend(bbox_to_anchor=(0.98, 0.98), fontsize=8, frameon=False)
+    plt.grid(linestyle='--', color='gray', linewidth=0.5, alpha=0.25)
+
+    plt.title('График зависимости количества средств\n'
+              'в фонде заработной платы\n'
+              'от объема произведенных изделий\n'
+              '(данные за 2009 год)',
+              fontweight='book')
+
+    print(vol_sal)
     plt.show()
